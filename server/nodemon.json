@@ -1,0 +1,5 @@
+{
+    "watch": [ "src", "resources/dev.env" ],
+    "ext": "ts,json",
+    "exec": "node --env-file=./resources/dev.env -r ts-node/register -r tsconfig-paths/register src/server.ts"
+}

@@ -1,0 +1,20 @@
+{
+    "name": "@lfgamers/app",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "workspaces": [
+        "frontend",
+        "server"
+    ],
+    "scripts": {
+        "dev": "concurrently \"npm run dev --workspace=@lfgamers/frontend\" \"npm run dev --workspace=@lfgamers/server\"",
+        "build": "npm run build --workspace=@lfgamers/frontend && npm run build --workspace=@lfgamers/server",
+        "lint": "concurrently \"npm run lint --workspace=@lfgamers/frontend\" \"npm run lint --workspace=@lfgamers/server\"",
+        "preview": "vite preview",
+        "start": "npm run start --workspace=@lfgamers/server"
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.2"
+    }
+}
