@@ -11,6 +11,7 @@ export default defineConfig({
     plugins: [tsconfigPaths()],
      resolve: {
         alias: {
+            '@api': path.resolve(__dirname, './src/api'),
             '@app': path.resolve(__dirname, './src'),
             '@config': path.resolve(__dirname, './src/config'),
             '@controllers': path.resolve(__dirname, '/src/controllers'),

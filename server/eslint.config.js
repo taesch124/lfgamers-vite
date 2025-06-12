@@ -29,7 +29,7 @@ export default tseslint.config(
             "prefer-const": "warn", // Encourages immutability
             "curly": "error", // Enforces braces for `if`, `while`, etc.
             "max-statements": ["error", 25],
-            "no-magic-numbers": ["error", { "ignore": [0, 1] }], // Avoids magic numbers
+            "no-magic-numbers": ["error", { "ignore": [0, 1, 1000] }], // Avoids magic numbers
             "no-undefined": 0, // Prevents undefined variables
             "no-undef-init": 0,
             "comma-dangle": ["error", "always-multiline"], // Enforces trailing commas for better diffs,
@@ -44,6 +44,8 @@ export default tseslint.config(
             "quotes": ["error", "single", { "avoidEscape": true }],
             "no-console": "warn", // Warns about console usage,
             "new-cap": "off", // Enforces new for classes
+            "no-inline-comments": "off", // Allows inline comments
+            "one-var": "off"
         },
     },
 );
