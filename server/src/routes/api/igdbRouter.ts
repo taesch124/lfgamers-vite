@@ -1,4 +1,4 @@
-import { searchPopularGames } from '@api/igdb/igdbApi';
+import IgdbGames from '@api/igdb/games';
 import IgdbAPIError from '@app/errors/IgdbAPIError';
 import TwitchAPIError from '@app/errors/TwitchAPIError';
 import { HttpStatusCode } from 'axios';
@@ -8,7 +8,7 @@ const igdbRouter: Router = Router();
 
 igdbRouter.get('/games', async (_req: Request, res: Response): Promise<any> => {
     try {
-        const games = await searchPopularGames();
+        const games = await IgdbGames.searchPopularGames();
         res.status(HttpStatusCode.Ok).json(games);
     } catch (error) {
         if (error instanceof Error) {

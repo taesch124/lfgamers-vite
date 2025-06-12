@@ -20,8 +20,6 @@ export type DatabaseConfig = {
     password: string;
 };
 
-export type IGDBConfig = { apiKey: string };
-
 export type TwitchConfig = {
     clientId: string;
     clientSecret: string;
@@ -32,7 +30,6 @@ export type LoggerConfig = { logLevel?: string }
 export type ApplicationConfig = {
     server: ServerConfig;
     database: DatabaseConfig;
-    igdb: IGDBConfig;
     twitch: TwitchConfig;
     log?: LoggerConfig;
 }
