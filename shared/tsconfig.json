@@ -1,0 +1,15 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "module": "esnext",
+        "rootDir": ".",
+        "outDir": "dist",
+        "noEmit": true,
+        "allowImportingTsExtensions": false,
+    },
+    "include": [ "." ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

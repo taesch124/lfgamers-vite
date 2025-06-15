@@ -1,8 +1,9 @@
 {
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
+        "baseUrl": ".",
         "module": "CommonJS",
-        "rootDir": ".",
+        "rootDir": "..",
         "outDir": "dist",
         "noEmit": false,
         "allowImportingTsExtensions": false,
@@ -18,9 +19,19 @@
             "@routes/*": ["./src/routes/*"],
             "@services/*": ["./src/services/*"],
             "@utils/*": ["./src/utils/*"],
+            "@shared-types": ["../shared/index"],
         },
+        "typeRoots": [
+            "./types",
+            "../node_modules/@types",
+            "./node_modules/@types"
+        ]
     },
-    "include": [ "./src", "./vite.config.ts" ],
+    "include": [
+        "./src",
+        "../shared",
+        "./vite.config.ts"
+    ],
     "exclude": [
         "node_modules",
         "dist"

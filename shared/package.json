@@ -1,0 +1,13 @@
+{
+    "name": "@lfgamers/shared-types",
+    "private": true,
+    "version": "0.0.0",
+    "main": "index.ts",
+    "scripts": {},
+    "dependencies": {
+        "zod": "^3.25.64"
+    },
+    "workspaces": [
+        "true"
+    ]
+}

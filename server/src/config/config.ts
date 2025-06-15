@@ -23,9 +23,12 @@ class ApplicationConfiguration {
         ref: ConfigRecord,
         index: string,
     ) => {
-        const envVar = process.env[obj.replace('process.env.', '')];
+        let envVar: string | Array<string> | undefined = process.env[obj.replace('process.env.', '')];
         // eslint-disable-next-line no-console
         console.log(`Applying to config process.env.${obj.replace('process.env.', '')} => ${process.env[obj.replace('process.env.', '')]}`);
+        if (envVar?.includes(',')) {
+            envVar = envVar.split(',').map((item) => item.trim());
+        }
         
         ref[index] =  envVar;
     };

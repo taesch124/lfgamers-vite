@@ -6,10 +6,13 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   server: {
     port: mode === 'development' ? 5173 : 8080,
-    proxy: { '/api': 'http://localhost:3000' }
+    proxy: {
+      '/api': 'http://localhost:3000',
+      '/auth': 'http://localhost:3000'
+    }
   },
   build: {
     outDir: 'dist',
     sourcemap: mode === 'development'
-  }
+  },
 }));

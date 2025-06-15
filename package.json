@@ -5,7 +5,8 @@
     "type": "module",
     "workspaces": [
         "frontend",
-        "server"
+        "server",
+        "shared"
     ],
     "scripts": {
         "dev": "concurrently \"npm run dev --workspace=@lfgamers/frontend\" \"npm run dev --workspace=@lfgamers/server\"",

@@ -39,7 +39,11 @@ export const apicalypse = (
         if (Array.isArray(options.where)) {
             whereConditions = options.where.map(filter => `${filter.field} ${filter.operator} ${filter.value.toString()}`);
         } else {
-            whereConditions.push(`${options.where.field} ${options.where.operator} ${JSON.stringify(options.where.value)}`);
+            let { value } = options.where;
+            if (typeof value !== 'string') {
+                value = JSON.stringify(value);
+            }
+            whereConditions.push(`${options.where.field} ${options.where.operator} ${value}`);
         }
 
         whereConditions.forEach((condition, index) => {

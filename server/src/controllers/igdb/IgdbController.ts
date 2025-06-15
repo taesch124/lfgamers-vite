@@ -1,13 +1,9 @@
 import axios, { Axios, AxiosError, AxiosRequestConfig, HttpStatusCode } from 'axios';
-import { TwitchAPI } from '@api/twitch/twitchApi';
+import { TwitchAPI } from '@app/controllers/twitch/twitchApi';
 import applicationConfig from '@config/config';
 import Logger from '@app/utils/logger';
 import IgdbAPIError from '@errors/IgdbAPIError';
 import TwitchAPIError from '@app/errors/TwitchAPIError';
-
-axios.defaults.headers.common['Client-ID'] = applicationConfig.twitch.clientId;
-axios.defaults.headers.common.Accept = 'application/json';
-axios.defaults.headers.common['Content-Type'] = 'application/apicalypse';
 
 const logger = Logger.createLogger('igdbApi');
 
@@ -32,12 +28,13 @@ class IgdbClient {
                 // Double-check to avoid race condition
                 if (!IgdbClient.accessToken || !TwitchAPI.checkTokens()) {
                     IgdbClient.accessToken = newToken;
+                    IgdbClient.axiosInstance.defaults.headers.common.Authorization = `Bearer ${IgdbClient.accessToken}`;
                 }
+            } else {
+                IgdbClient.axiosInstance.defaults.headers.common.Authorization = `Bearer ${IgdbClient.accessToken}`;
             }
 
-            IgdbClient.axiosInstance.defaults.headers.common.Authorization = `Bearer ${IgdbClient.accessToken}`;
             logger.info('Making IGDB API request', { request });
-
             const response = await IgdbClient.axiosInstance.request<T>(request);
             return response.data;
         } catch (error) {
@@ -52,26 +49,5 @@ class IgdbClient {
     }
 
 }
-
-const baseUrl = 'https://api.igdb.com/v4';
-export const getPoster = async (gameId: string): Promise<any> => {
-    const body = `fields game,url;
-    where game = ${gameId};`,
-        url = `${baseUrl}/covers`;
-
-    try {
-        const response = await axios({
-            data: body,
-            method: 'POST',
-            url,
-        });
-        return response.data;
-    } catch (error) {
-        return {
-            error: true,
-            message: error,
-        };
-    }
-};
 
 export default IgdbClient;

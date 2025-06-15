@@ -1,16 +1,19 @@
 import IgdbAPIError from '@app/errors/IgdbAPIError';
 import TwitchAPIError from '@app/errors/TwitchAPIError';
+import type { IGDBCoverDTO, IGDBGameDTO } from '@shared-types';
 import Logger from '@app/utils/logger';
 import { AxiosError, HttpStatusCode } from 'axios';
 import { getUnixTime, subMonths } from 'date-fns';
 import { DEFAULT_BACKWARD_TIME_WIND, igdbGameFieldList } from './constants';
-import IgdbClient from './igdbApi';
-import { apicalypse } from './apicalypse';
+import IgdbClient from './IgdbController';
+import { apicalypse } from '../../utils/apicalypse';
+import { IGDBCoverField } from '@lfgamers/shared-types/igdbDTO/covers';
+import { IGDBGameField } from '@lfgamers/shared-types/igdbDTO/games';
 
 const logger = Logger.createLogger('igdbApi-games');
 
 class IgdbGames {
-    public static searchPopularGames = async () => {
+    public static searchPopularGames = async (): Promise<Array<IGDBGameDTO>> => {
         const currentDate = new Date();
         const endDate = getUnixTime(currentDate);
         const startDate = getUnixTime(subMonths(currentDate, DEFAULT_BACKWARD_TIME_WIND));
@@ -21,22 +24,22 @@ class IgdbGames {
             limit: 10,
             where: [
                 {
-                    field: 'first_release_date',
+                    field: IGDBGameField.FIRST_RELEASE_DATE,
                     operator: '>',
                     value: startDate,
                 },
                 {
-                   field: 'first_release_date',
+                    field: IGDBGameField.FIRST_RELEASE_DATE,
                     operator: '<',
                     value: endDate, 
                 },
                 {
-                    field: 'aggregated_rating',
+                    field: IGDBGameField.AGGREGATED_RATING,
                     operator: '>',
                     value: 80,
                 },
                 {
-                    field: 'version_parent',
+                    field: IGDBGameField.VERSION_PARENT,
                     operator: '=',
                     value: 'null',
                 },
@@ -50,7 +53,7 @@ class IgdbGames {
                 method: 'POST',
                 url,
             });
-            return response;
+            return response as Array<IGDBGameDTO>;
         } catch (error) {
             logger.error('Error searching games in IGDB API', { error });
             if (error instanceof AxiosError) {
@@ -78,6 +81,37 @@ class IgdbGames {
                 url,
             });
             return response;
+        } catch (error) {
+            logger.error('Error searching games in IGDB API', { error });
+            if (error instanceof AxiosError) {
+                throw new IgdbAPIError(`Failed to search games in IGDB API. ${error.message}`, error.status ?? HttpStatusCode.InternalServerError);
+            } else if (error instanceof TwitchAPIError) {
+                throw error;
+            }
+            throw new IgdbAPIError(`Failed to search games in IGDB API. ${error}`, HttpStatusCode.InternalServerError);
+        }
+    };
+
+    public static getGamePoster = async (gameId: string): Promise<IGDBCoverDTO> => {
+        const body = apicalypse(
+            'game, url',
+            {
+                where: {
+                    field: IGDBCoverField.GAME,
+                    operator: '=',
+                    value: gameId,
+                },
+            },
+        );
+        const url = `${IgdbClient.baseUrl}/covers`;
+
+        try {
+            const response = await IgdbClient.request({
+                data: body,
+                method: 'POST',
+                url,
+            });
+            return (response as Array<IGDBCoverDTO>)[0] ;
         } catch (error) {
             logger.error('Error searching games in IGDB API', { error });
             if (error instanceof AxiosError) {

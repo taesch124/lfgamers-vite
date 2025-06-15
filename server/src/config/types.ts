@@ -10,7 +10,10 @@ export type ServerEnvironmentVariables = {
     TWITCH_CLIENT_SECRET: string;
 }
 
-export type ServerConfig = { port?: string };
+export type ServerConfig = {
+    allowedOrigins?: string | Array<string>;
+    port?: string
+};
 
 export type DatabaseConfig = {
     host: string;
@@ -36,5 +39,5 @@ export type ApplicationConfig = {
 
 export type ConfigRecord = Record<
     string,
-    string | undefined
+    Array<string> | string | undefined
 >;
