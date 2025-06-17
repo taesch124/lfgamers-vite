@@ -17,9 +17,14 @@ const igdbRouter: Router = Router();
 
 igdbRouter.get('/games', async (_req: Request, res: Response): Promise<void> => {
     try {
-        logger.info('User:', { user: (_req.session as unknown as any).passport });
+        logger.info('User:', {
+            authenticated: _req.isAuthenticated(),
+            user: (_req.session as unknown as any).passport,
+        });
         const games = await IgdbGames.searchPopularGames();
         res.status(HttpStatusCode.Ok).json(games);
+
+        return;
     } catch (error) {
         logger.error('Error fetching popular games from IGDB', { error });
         if (error instanceof Error) {
@@ -28,9 +33,9 @@ igdbRouter.get('/games', async (_req: Request, res: Response): Promise<void> => 
             res.status(error.statusCode).json({ error: error.message });
         } else if (error instanceof IgdbAPIError) {
             res.status(error.statusCode).json({ error: error.message });
+        } else {
+            res.status(HttpStatusCode.InternalServerError).json({ error: 'An unexpected error occurred.' });
         }
-
-        res.status(HttpStatusCode.InternalServerError).json({ error: 'An unexpected error occurred.' });
     }
 });
 

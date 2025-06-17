@@ -23,7 +23,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-    cookie: { secure: true },
+    // TEMP: cookie: { secure: true },
     resave: true,
     saveUninitialized: true,
     secret: 'lfgamers',

@@ -24,6 +24,7 @@ function RegisterPage() {
     const navigate = useNavigate();
     const {
         control,
+        setError,
         handleSubmit,
         formState: { isSubmitting, errors }
     } = useForm<RegisterInputs>({
@@ -56,11 +57,11 @@ function RegisterPage() {
         try {
             const response = await mutation.mutateAsync(data);
             if (response.error) {
-                console.error(response.error ?? 'Register Failed');
+                setError('password', { message: response.error ?? 'Register failed' });
                 return;
             }
 
-            navigate('/login');
+            navigate('/games');
         } catch (error) {
             console.error(error);
         }

@@ -46,7 +46,9 @@ export default tseslint.config(
             "no-console": "warn", // Warns about console usage,
             "new-cap": "off", // Enforces new for classes
             "no-inline-comments": "off", // Allows inline comments
-            "one-var": "off"
+            "one-var": "off",
+            "no-useless-return": "off",
+            "consistent-return": "off"
         },
     },
 );

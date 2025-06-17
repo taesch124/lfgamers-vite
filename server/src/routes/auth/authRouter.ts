@@ -13,18 +13,10 @@ const userModelLogger = Logger.createLogger('userModel');
 const authRouter: Router = Router();
 const userModel = new UserModel(userModelLogger);
 
-authRouter.post('/login',
-    passport.authenticate('local', {
-        failureMessage: true,
-        failureRedirect: '/login',
-    }),
-    (_req: Request, res: Response): void => {
-        res.status(HttpStatusCode.Ok).json({
-            error: false,
-            sucess: true,
-        });
-    },
-);
+authRouter.post('/login', passport.authenticate('local', {
+    failureMessage: 'Invalid credentials',
+    successRedirect: '/games',
+}));
 
 authRouter.post('/register', async (_req: Request, res: Response): Promise<void> => {
     try {

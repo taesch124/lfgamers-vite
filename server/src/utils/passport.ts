@@ -9,36 +9,36 @@ const userModelLogger = Logger.createLogger('userModel');
 const userModel = new UserModel(userModelLogger);
 
 passport.use(
-    new LocalStrategy((username, password, done) => {
-            userModel.getUserByUsername(username)
-                .then((user) => {
-                    // INFO: password hashing
-                    if (user.password === password) {
-                        return done(null, user);
-                    }
+    new LocalStrategy(async (username, password, done) => {
+        passportLogger.info('Logging in user', { password, username });
+        try {
+            const user = await userModel.getUserByUsername(username);
+            if (!user) {
+                return done(new Error('Invalid credentials'));
+            }
 
-                    return done(null, false, { message: 'Invalid credentials' });
-                })
-                .catch(() => done(null, false, { message: 'Invalid credentials' }));
-            return done(null, false, { message: 'Invalid credentials' });
+            if (user.password === password) {
+                passportLogger.info('passwords match', { password, userPassword: user.password });
+                return done(null, user);
+            }
+
+            return done(new Error('Invalid credentials'));
+        } catch (err) {
+            done(err);
+        }
     },
 ));
 
 passport.serializeUser((user, done) => {
     process.nextTick(() => {
         passportLogger.info('Serializing user', { user });
-        return done(null, {
-            username: (user as UserDTO).username,
-            uuid: (user as UserDTO).uuid,
-        });
+        return done(null, (user as UserDTO).uuid);
     });
 });
 
-passport.deserializeUser((user: any, done) => {
-    userModel.getUserByUserId(user.uuid as string)
-        .then((userResult) => {
-            passportLogger.info('Deserializing user', { user });
-            return done(null, userResult);
-        })
+passport.deserializeUser((user: string, done) => {
+    passportLogger.info('Deserializing user', { user });
+    userModel.getUserByUserId(user)
+        .then((userResult) => done(null, userResult))
         .catch((error) => done(error));
 });

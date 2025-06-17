@@ -24,6 +24,7 @@ function LoginPage() {
     const navigate = useNavigate();
     const {
         control,
+        setError,
         handleSubmit,
         formState: { isSubmitting, errors }
     } = useForm<LoginInputs>();
@@ -49,7 +50,7 @@ function LoginPage() {
         try {
             const response = await mutation.mutateAsync(data);
             if (response.error) {
-                console.error(response.error ?? 'Login Failed');
+                setError('password', { message: response.error ?? 'Login failed' });
                 return;
             }
 
