@@ -1,44 +1,42 @@
-import UserModel from '@app/database/models/userModel';
+import config from '@app/config/config';
+import AuthenticationError from '@app/errors/AuthenticationError';
 import Logger from '@app/utils/logger';
-import { UserDTO } from '@shared-types';
+import { Request } from 'express';
+import jwt from 'jsonwebtoken';
 import passport from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as JwtStrategy, StrategyOptions } from 'passport-jwt';
 
 const passportLogger = Logger.createLogger('passportLogger');
-const userModelLogger = Logger.createLogger('userModel');
-const userModel = new UserModel(userModelLogger);
+
+const cookieExtractor = (req: Request): string | null => {
+    let token = null;
+    if (req?.cookies) {
+        token = req.cookies.access_token;
+    } else {
+        passportLogger.warn('Cookie not found.', { cookies: req.cookies });
+    }
+
+    return token;
+};
+
+const passportJwtOptions: StrategyOptions = {
+    jwtFromRequest: cookieExtractor,
+    secretOrKey: config.server.jwtSecret ?? 'lfgamers',
+};
 
 passport.use(
-    new LocalStrategy(async (username, password, done) => {
-        passportLogger.info('Logging in user', { password, username });
-        try {
-            const user = await userModel.getUserByUsername(username);
-            if (!user) {
-                return done(new Error('Invalid credentials'));
-            }
-
-            if (user.password === password) {
-                passportLogger.info('passwords match', { password, userPassword: user.password });
-                return done(null, user);
-            }
-
-            return done(new Error('Invalid credentials'));
-        } catch (err) {
-            done(err);
+    new JwtStrategy(passportJwtOptions, (token: any, done: any) => {
+        passportLogger.info('JWT', { jwt });
+        if (!token) {
+            return done(new AuthenticationError('Token not found'));
         }
-    },
-));
 
-passport.serializeUser((user, done) => {
-    process.nextTick(() => {
-        passportLogger.info('Serializing user', { user });
-        return done(null, (user as UserDTO).uuid);
-    });
-});
+        const currentTime = new Date().getTime() / 1000;
+        passportLogger.info('Time check', { currentTime, exp: token.exp });
+        if (currentTime > token.exp) {
+            return done (new AuthenticationError('Token Expired'));
+        }
 
-passport.deserializeUser((user: string, done) => {
-    passportLogger.info('Deserializing user', { user });
-    userModel.getUserByUserId(user)
-        .then((userResult) => done(null, userResult))
-        .catch((error) => done(error));
-});
+        return done(null, jwt);
+    }),
+);

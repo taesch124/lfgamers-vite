@@ -12,7 +12,9 @@ export type ServerEnvironmentVariables = {
 
 export type ServerConfig = {
     allowedOrigins?: string | Array<string>;
-    port?: string
+    port?: string;
+    cookieSecret?: string;
+    jwtSecret?: string;
 };
 
 export type DatabaseConfig = {

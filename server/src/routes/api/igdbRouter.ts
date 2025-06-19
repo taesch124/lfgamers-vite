@@ -17,10 +17,6 @@ const igdbRouter: Router = Router();
 
 igdbRouter.get('/games', async (_req: Request, res: Response): Promise<void> => {
     try {
-        logger.info('User:', {
-            authenticated: _req.isAuthenticated(),
-            user: (_req.session as unknown as any).passport,
-        });
         const games = await IgdbGames.searchPopularGames();
         res.status(HttpStatusCode.Ok).json(games);
 

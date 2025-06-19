@@ -2,21 +2,62 @@ import IgdbAPIError from '@app/errors/IgdbAPIError';
 import TwitchAPIError from '@app/errors/TwitchAPIError';
 import { HttpStatusCode } from 'axios';
 import { type Request, type Response, Router } from 'express';
+import jwt from 'jsonwebtoken';
 import Logger from '@app/utils/logger';
 import { UserDTO, UserRegisterReqSchema } from '@shared-types';
 import UserModel from '@app/database/models/userModel';
-import passport from 'passport';
 import zod from 'zod/v4';
+import config from '@app/config/config';
+import { ACCESS_TOKEN_LIFETIME, ACCESS_TOKEN_LIFETIME_STRING, REFRES_TOKEN_LIFETIME, REFRES_TOKEN_LIFETIME_STRING } from '@app/utils/constants';
 
 const logger = Logger.createLogger('authRouter');
 const userModelLogger = Logger.createLogger('userModel');
 const authRouter: Router = Router();
 const userModel = new UserModel(userModelLogger);
 
-authRouter.post('/login', passport.authenticate('local', {
-    failureMessage: 'Invalid credentials',
-    successRedirect: '/games',
-}));
+authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
+    const { username, password } = req.body;
+    logger.info('Logging in user', { password, username });
+    try {
+        const user = await userModel.getUserByUsername(username);
+        if (!user) {
+            return res.status(HttpStatusCode.Unauthorized)
+                .json({ error: 'Invalid credentials' });
+        }
+
+        if (user.password === password) {
+            logger.info('passwords match', { password, userPassword: user.password });
+
+            const secret = config.server.jwtSecret ?? 'lfgamers';            
+            const accessToken = jwt.sign({ user }, secret, { expiresIn: ACCESS_TOKEN_LIFETIME_STRING });
+            const refreshToken = jwt.sign({ user }, secret, { expiresIn: REFRES_TOKEN_LIFETIME_STRING });
+
+            res.cookie('access_token', accessToken,  {
+                httpOnly: true,
+                maxAge: ACCESS_TOKEN_LIFETIME,
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+            });
+
+            res.cookie('refresh_token', refreshToken, {
+                httpOnly: true,
+                maxAge: REFRES_TOKEN_LIFETIME,
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+            });
+
+            return res.status(HttpStatusCode.Ok)
+                .json({ success: true });
+        }
+
+        return res.status(HttpStatusCode.Unauthorized)
+            .json({ error: 'Invalid credentials' });
+    } catch (err) {
+        logger.warn('Could not log in', { error: err });
+        return res.status(HttpStatusCode.Unauthorized)
+            .json({ error: 'Invalid credentials' });
+    }
+});
 
 authRouter.post('/register', async (_req: Request, res: Response): Promise<void> => {
     try {

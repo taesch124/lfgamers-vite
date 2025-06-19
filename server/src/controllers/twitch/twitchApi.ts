@@ -1,11 +1,15 @@
 import axios, { AxiosError, HttpStatusCode } from 'axios';
 import applicationConfig from '@config/config';
 import TwitchAPIError from '@errors/TwitchAPIError';
+import Logger from '@app/utils/logger';
+
+const logger = Logger.createLogger('twitchAPI');
 
 type TwitchAPITokens = {
     access_token: string;
     expires_in: number;
     token_type: string;
+    expires_at: number;
 };
 
 export class TwitchAPI {
@@ -23,7 +27,10 @@ export class TwitchAPI {
     };
 
     private static setTokens = (tokens: TwitchAPITokens)  => {
+        const currentTime = Math.floor(Date.now() / 1000);
         TwitchAPI.tokens = tokens;
+        // eslint-disable-next-line camelcase
+        TwitchAPI.tokens.expires_at = currentTime + TwitchAPI.tokens.expires_in;
     };
 
     public static getAccessToken = async (): Promise<string> => {
@@ -39,9 +46,8 @@ export class TwitchAPI {
             return false;
         }
 
-        // eslint-disable-next-line no-magic-numbers
         const currentTime = Math.floor(Date.now() / 1000);
-        return currentTime < TwitchAPI.tokens.expires_in;
+        return currentTime < TwitchAPI.tokens.expires_at;
     };
 
     public static async login(): Promise<TwitchAPITokens> {
@@ -51,6 +57,7 @@ export class TwitchAPI {
         } = applicationConfig.twitch,
         baseUrl: string = `https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`;
 
+        logger.info('Retrieving Twitch access_token');
         try {
             const params = new URLSearchParams({
                 clientId, 

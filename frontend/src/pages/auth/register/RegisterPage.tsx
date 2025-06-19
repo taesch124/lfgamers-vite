@@ -38,7 +38,6 @@ function RegisterPage() {
 
     const mutation = useMutation<UserRegisterResDTO, Error, UserRegisterReqDTO>({
         mutationFn: async (data) => {
-            console.log(data);
             const response = await appClient.request<
                 UserRegisterReqDTO,
                 AxiosResponse<UserRegisterResDTO>,
@@ -61,7 +60,7 @@ function RegisterPage() {
                 return;
             }
 
-            navigate('/games');
+            navigate('/login');
         } catch (error) {
             console.error(error);
         }

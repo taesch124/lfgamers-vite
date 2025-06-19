@@ -14,7 +14,6 @@ function GamesList() {
             return response.data;
         },
     });
-    console.log('GamesList', { isPending, isError, data, error });
 
     if (isError) {
         return <Text>Error: {error instanceof Error ? error.message : 'An error occurred'}</Text>;

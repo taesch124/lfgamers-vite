@@ -7,7 +7,11 @@ import authMiddleware from '@app/middleware/authMiddleware';
 const appRouter: Router = Router(),
 frontendPath = path.join(process.cwd(), '../frontend/dist');
 
-appRouter.use('/api', authMiddleware, apiRouter);
+appRouter.use(
+    '/api',
+    authMiddleware,
+    apiRouter,
+);
 appRouter.use('/auth', authRouter);
 
 appRouter.get('/{*any}', (_req: Request, res: Response) => {

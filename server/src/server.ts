@@ -1,6 +1,6 @@
 
+import cookieParser from 'cookie-parser';
 import express, { type Express } from 'express';
-import session from 'express-session';
 import config from '@config/config';
 import passport from 'passport';
 import { DEFAULT_PORT } from '@utils/constants';
@@ -22,14 +22,8 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    // TEMP: cookie: { secure: true },
-    resave: true,
-    saveUninitialized: true,
-    secret: 'lfgamers',
-}));
+app.use(cookieParser(process.env.COOKIE_SECRET ?? 'lfgamers'));
 app.use(passport.initialize());
-app.use(passport.session());
 
 logger.info('Application config loaded', { config });
 app.use(express.static(frontendPath));
