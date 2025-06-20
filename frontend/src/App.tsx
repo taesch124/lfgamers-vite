@@ -6,17 +6,20 @@ import { BrowserRouter } from 'react-router';
 
 import './App.css';
 import AppRoutes from './Routes';
+import ApplicationShell from './layouts/ApplicationShell';
 
 function App() {
-    return (
-        <MantineProvider>
-            <QueryClientProvider client={new QueryClient()}>
-                <BrowserRouter>
-                    <AppRoutes />
-                </BrowserRouter>
-            </QueryClientProvider>
-        </MantineProvider>
-    );
+  return (
+    <MantineProvider>
+        <QueryClientProvider client={new QueryClient()}>
+            <BrowserRouter>
+                <ApplicationShell>
+                  <AppRoutes />
+                </ApplicationShell>
+            </BrowserRouter>
+        </QueryClientProvider>
+    </MantineProvider>
+  );
 }
 
 export default App;
