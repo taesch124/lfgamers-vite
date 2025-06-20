@@ -1,9 +1,9 @@
-import { IGDBGameDTO } from "@lfgamers/shared-types";
-import { Button, Container, Grid, Text } from "@mantine/core";
-import { useQuery } from "@tanstack/react-query";
-import appClient from "../../api/apiClient";
-import GameListItem from "../../components/gamesListItem/gameListItem";
-import { useState } from "react";
+import { Button, Container, Grid, Text } from '@mantine/core';
+import GameListItem from '@components/gamesListItem/gameListItem';
+import { IGDBGameDTO } from '@lfgamers/shared-types';
+import appClient from '@api/apiClient';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 function GamesList() {
     const [count, setCount] = useState(0);
@@ -33,7 +33,10 @@ function GamesList() {
                     ) : (
                         <>
                             {data?.map((game) => (
-                                <GameListItem key={game.uuid} game={game} />
+                                <GameListItem
+                                    game={game}
+                                    key={game.id}
+                                />
                             ))}
                         </>
                     )}

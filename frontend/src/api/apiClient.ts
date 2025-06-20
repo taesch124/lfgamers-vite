@@ -1,5 +1,5 @@
-import axios, { HttpStatusCode } from "axios";
-import NavigationService from "../services/navigationService";
+import axios, { HttpStatusCode } from 'axios';
+import NavigationService from '@services/navigationService';
 
 const appClient = axios.create({
   baseURL: 'http://localhost:3000',
@@ -11,21 +11,20 @@ const appClient = axios.create({
   withCredentials: true,
 });
 
-// appClient.interceptors.response = {};
-export default appClient;
-
 appClient.interceptors.response.use(
   (response) => {
     if (response.status === HttpStatusCode.Unauthorized) {
       console.log('Unauthorized, redirecting to login');
-      NavigationService.redirect('/login');
+      (NavigationService.getNavigate())('/login');
     }
     return response;
   },
   (error) => {
     if (error.response?.status === HttpStatusCode.Unauthorized) {
-      NavigationService.redirect('/login');
+      (NavigationService.getNavigate())('/login');
     }
     return Promise.reject(error);
-  }
-)
+  },
+);
+
+export default appClient;

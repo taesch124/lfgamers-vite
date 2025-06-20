@@ -8,10 +8,6 @@ import { ACCESS_TOKEN_LIFETIME, ACCESS_TOKEN_LIFETIME_STRING } from '@app/utils/
 const logger = Logger.createLogger('authMiddleware');
 
 export default (req: Request, res: Response, next: NextFunction): void => {
-    logger.info('User/Session', {
-        cookies: req.cookies,
-    });
-
     const {
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -20,7 +16,7 @@ export default (req: Request, res: Response, next: NextFunction): void => {
     const secret = config.server.jwtSecret ?? 'lfgamers';
     if (!accessToken) {
         if (!refreshToken) {
-            logger.warn('No refresh token, unauthorized');
+            logger.warn('No access token or refresh token, unauthorized');
             res.status(HttpStatusCode.Unauthorized).json({ error: 'Invalid session' });
             return;
         }

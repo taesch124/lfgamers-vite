@@ -1,22 +1,22 @@
-import { UserLoginReqDTO, UserLoginResDTO } from "@lfgamers/shared-types";
+import { UserLoginReqDTO, UserLoginResDTO } from '@lfgamers/shared-types';
 import {
+    Box,
     Button,
     Card,
+    Center,
     Container,
+    InputError,
+    LoadingOverlay,
     PasswordInput,
-    Title,
     Text,
     TextInput,
-    Center,
-    Box,
-    InputError,
-    LoadingOverlay
-} from "@mantine/core";
-import { useForm, SubmitHandler, Controller } from "react-hook-form"
-import { Link, useNavigate } from "react-router";
-import appClient from "../../../api/apiClient";
-import { AxiosResponse } from "axios";
-import { useMutation } from "@tanstack/react-query";
+    Title,
+} from '@mantine/core';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router';
+import appClient from '@api/apiClient';
+import { AxiosResponse } from 'axios';
+import { useMutation } from '@tanstack/react-query';
 
 type LoginInputs = UserLoginReqDTO;
 
@@ -26,12 +26,11 @@ function LoginPage() {
         control,
         setError,
         handleSubmit,
-        formState: { isSubmitting, errors }
+        formState: { isSubmitting, errors },
     } = useForm<LoginInputs>();
 
     const mutation = useMutation<UserLoginResDTO, Error, UserLoginReqDTO>({
         mutationFn: async (data) => {
-            console.log(data);
             const response = await appClient.request<
                 UserLoginReqDTO,
                 AxiosResponse<UserLoginResDTO>,
@@ -39,11 +38,11 @@ function LoginPage() {
             >({
                 method: 'POST',
                 url: '/auth/login',
-                data
+                data,
             });
 
             return response.data;
-        }
+        },
     });
 
     const onSubmit: SubmitHandler<LoginInputs> = async (data: LoginInputs) => {
@@ -58,7 +57,7 @@ function LoginPage() {
         } catch (error) {
             console.error(error);
         }
-    }
+    };
     return (
         <Container>
             <Title>
@@ -86,7 +85,7 @@ function LoginPage() {
                 style={{ marginBottom: '1rem' }}
             >
                 <Box pos='relative'>
-                    <LoadingOverlay visible={isSubmitting} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+                    <LoadingOverlay visible={isSubmitting} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Controller
                             name='username'

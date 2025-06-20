@@ -8,7 +8,7 @@ import { UserDTO, UserRegisterReqSchema } from '@shared-types';
 import UserModel from '@app/database/models/userModel';
 import zod from 'zod/v4';
 import config from '@app/config/config';
-import { ACCESS_TOKEN_LIFETIME, ACCESS_TOKEN_LIFETIME_STRING, REFRES_TOKEN_LIFETIME, REFRES_TOKEN_LIFETIME_STRING } from '@app/utils/constants';
+import { ACCESS_TOKEN_LIFETIME, ACCESS_TOKEN_LIFETIME_STRING, REFRESH_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME_STRING } from '@app/utils/constants';
 
 const logger = Logger.createLogger('authRouter');
 const userModelLogger = Logger.createLogger('userModel');
@@ -30,7 +30,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
 
             const secret = config.server.jwtSecret ?? 'lfgamers';            
             const accessToken = jwt.sign({ user }, secret, { expiresIn: ACCESS_TOKEN_LIFETIME_STRING });
-            const refreshToken = jwt.sign({ user }, secret, { expiresIn: REFRES_TOKEN_LIFETIME_STRING });
+            const refreshToken = jwt.sign({ user }, secret, { expiresIn: REFRESH_TOKEN_LIFETIME_STRING });
 
             res.cookie('access_token', accessToken,  {
                 httpOnly: true,
@@ -41,7 +41,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
 
             res.cookie('refresh_token', refreshToken, {
                 httpOnly: true,
-                maxAge: REFRES_TOKEN_LIFETIME,
+                maxAge: REFRESH_TOKEN_LIFETIME,
                 sameSite: 'lax',
                 secure: process.env.NODE_ENV === 'production',
             });

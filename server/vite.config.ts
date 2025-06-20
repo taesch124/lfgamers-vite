@@ -9,7 +9,7 @@ export default defineConfig({
         outDir: 'dist',
     },
     plugins: [tsconfigPaths()],
-     resolve: {
+    resolve: {
         alias: {
             '@api': path.resolve(__dirname, './src/api'),
             '@app': path.resolve(__dirname, './src'),
