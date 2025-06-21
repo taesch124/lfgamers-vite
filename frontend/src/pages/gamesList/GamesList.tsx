@@ -1,9 +1,9 @@
 import { Button, Container, Grid, Text } from '@mantine/core';
-import GameListItem from '@components/gamesListItem/gameListItem';
 import { IGDBGameDTO } from '@lfgamers/shared-types';
-import appClient from '@api/apiClient';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import GameListItem from '@components/gamesListItem/gameListItem';
+import appClient from '@api/apiClient';
 
 function GamesList() {
     const [count, setCount] = useState(0);

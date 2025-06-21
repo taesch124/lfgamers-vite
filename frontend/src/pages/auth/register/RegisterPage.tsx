@@ -1,4 +1,4 @@
-import { UserRegisterReqDTO, UserRegisterResDTO } from "@lfgamers/shared-types";
+import { UserRegisterReqDTO, UserRegisterResDTO } from '@lfgamers/shared-types';
 import {
     Button,
     Card,
@@ -10,23 +10,22 @@ import {
     TextInput,
     Center,
     Box,
-    LoadingOverlay
-} from "@mantine/core";
+    LoadingOverlay,
+} from '@mantine/core';
 import { useMutation } from '@tanstack/react-query';
-import { useForm, Controller, SubmitHandler } from "react-hook-form"
-import { Link, useNavigate } from "react-router";
-import appClient from "../../../api/apiClient";
-import { AxiosResponse } from "axios";
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { Link } from 'react-router';
+import { AxiosResponse } from 'axios';
+import appClient from '../../../api/apiClient';
 
 type RegisterInputs = UserRegisterReqDTO;
 
 function RegisterPage() {
-    const navigate = useNavigate();
     const {
         control,
         setError,
         handleSubmit,
-        formState: { isSubmitting, errors }
+        formState: { isSubmitting, errors },
     } = useForm<RegisterInputs>({
         defaultValues: {
             username: '',
@@ -45,11 +44,11 @@ function RegisterPage() {
             >({
                 method: 'POST',
                 url: '/auth/register',
-                data
+                data,
             });
 
             return response.data;
-        }
+        },
     });
 
     const onSubmit: SubmitHandler<RegisterInputs> = async (data: UserRegisterReqDTO) => {
@@ -59,12 +58,11 @@ function RegisterPage() {
                 setError('password', { message: response.error ?? 'Register failed' });
                 return;
             }
-
-            navigate('/login');
         } catch (error) {
             console.error(error);
+            setError('password', { message: 'Register failed' });
         }
-    }
+    };
 
     return (
         <Container>
@@ -94,7 +92,7 @@ function RegisterPage() {
                 style={{ marginBottom: '1rem' }}
             >
                 <Box pos='relative'>
-                    <LoadingOverlay visible={isSubmitting} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+                    <LoadingOverlay visible={isSubmitting} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Controller
                             name='username'

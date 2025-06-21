@@ -30,12 +30,13 @@ export default tseslint.config(
         "alias": {
           "map": [
             ["@api", "./src/api"],
+            ["@atoms", "./src/atoms"],
             ["@assets", "./src/assets"],
             ["@components", "./src/components"],
+            ["@layouts", "./src/layouts"],
             ["@pages", "./src/pages"],
             ["@services", "./src/services"],
             ["@utils", "./src/utils"],
-            // Add more aliases here following the format ["alias", "path/to/alias"]
           ],
           "extensions": [".ts", ".tsx", ".json"] // Add extensions if needed
         }

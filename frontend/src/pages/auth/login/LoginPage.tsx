@@ -14,14 +14,17 @@ import {
 } from '@mantine/core';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
-import appClient from '@api/apiClient';
 import { AxiosResponse } from 'axios';
 import { useMutation } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
+import appClient from '@api/apiClient';
+import sessionAtom from '@atoms/sessionAtom';
 
 type LoginInputs = UserLoginReqDTO;
 
 function LoginPage() {
     const navigate = useNavigate();
+    const [ , setSession ] = useAtom(sessionAtom);
     const {
         control,
         setError,
@@ -52,7 +55,7 @@ function LoginPage() {
                 setError('password', { message: response.error ?? 'Login failed' });
                 return;
             }
-
+            setSession({ authenticated: true });
             navigate('/games');
         } catch (error) {
             console.error(error);

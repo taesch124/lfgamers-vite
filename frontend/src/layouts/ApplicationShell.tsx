@@ -1,10 +1,11 @@
-import { AppShell, Burger, Flex, Image, px } from '@mantine/core';
+import { AppShell } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { JSX } from 'react';
-
-import AppLogo from '@assets/LFGamersLogo.png';
+import { useLocation } from 'react-router';
+import ApplicationHeader from '@layouts/ApplicationHeader';
 
 function ApplicationShell({ children }: { children: JSX.Element }) {
+  const location = useLocation();
   const [opened, { toggle }] = useDisclosure();
 
   return (
@@ -18,29 +19,19 @@ function ApplicationShell({ children }: { children: JSX.Element }) {
       padding="md"
     >
       <AppShell.Header>
-        <Flex
-            align='center'
-            h={60}
-            justify='space-between'
-            pl={16}
-            pr={16}
-        >
-            <Image
-                alt='LFGamers Logo'
-                h={40}
-                src={AppLogo}
-                w={40}
-            />
-            <Burger
-                opened={opened}
-                onClick={toggle}
-                hiddenFrom="sm"
-                size="sm"
-            />
-        </Flex>
+        <ApplicationHeader
+          opened={opened}
+          toggle={toggle}
+        />
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+      {!['/login', '/register'].includes(location.pathname) && (
+        <AppShell.Navbar
+          p='md'
+        >
+          Navbar
+        </AppShell.Navbar>
+      )}
 
       <AppShell.Main>
         {children}

@@ -1,5 +1,7 @@
 import axios, { HttpStatusCode } from 'axios';
 import NavigationService from '@services/navigationService';
+import appStore from '@atoms/store';
+import sessionAtom from '@atoms/sessionAtom';
 
 const appClient = axios.create({
   baseURL: 'http://localhost:3000',
@@ -14,13 +16,16 @@ const appClient = axios.create({
 appClient.interceptors.response.use(
   (response) => {
     if (response.status === HttpStatusCode.Unauthorized) {
-      console.log('Unauthorized, redirecting to login');
+      console.warn('Unauthorized, redirecting to login');
+      appStore.set(sessionAtom, { authenticated: false });
       (NavigationService.getNavigate())('/login');
     }
     return response;
   },
   (error) => {
     if (error.response?.status === HttpStatusCode.Unauthorized) {
+      console.warn('Unauthorized, redirecting to login');
+      appStore.set(sessionAtom, { authenticated: false });
       (NavigationService.getNavigate())('/login');
     }
     return Promise.reject(error);

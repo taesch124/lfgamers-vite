@@ -9,11 +9,14 @@ import UserModel from '@app/database/models/userModel';
 import zod from 'zod/v4';
 import config from '@app/config/config';
 import { ACCESS_TOKEN_LIFETIME, ACCESS_TOKEN_LIFETIME_STRING, REFRESH_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME_STRING } from '@app/utils/constants';
+import authMiddleware from '@app/middleware/authMiddleware';
 
 const logger = Logger.createLogger('authRouter');
 const userModelLogger = Logger.createLogger('userModel');
 const authRouter: Router = Router();
 const userModel = new UserModel(userModelLogger);
+
+const secret: string = config.server.jwtSecret ?? 'lfgamers';
 
 authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
     const { username, password } = req.body;
@@ -28,7 +31,6 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
         if (user.password === password) {
             logger.info('passwords match', { password, userPassword: user.password });
 
-            const secret = config.server.jwtSecret ?? 'lfgamers';            
             const accessToken = jwt.sign({ user }, secret, { expiresIn: ACCESS_TOKEN_LIFETIME_STRING });
             const refreshToken = jwt.sign({ user }, secret, { expiresIn: REFRESH_TOKEN_LIFETIME_STRING });
 
@@ -57,6 +59,26 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
         return res.status(HttpStatusCode.Unauthorized)
             .json({ error: 'Invalid credentials' });
     }
+});
+
+// INFO: authmiddleware will check the tokens, so no need to, just send success back
+authRouter.get('/check-token', authMiddleware, (req: Request, res: Response) => {
+    res.status(HttpStatusCode.Ok).json({ message: 'Session authenticated' });
+});
+
+authRouter.post('/logout', (req: Request, res: Response): void => {
+    if (req.cookies.access_token) {
+        const decodedAccess = jwt.decode(req.cookies.access_token);
+        logger.info('Logging out user', { user: (decodedAccess as any)?.user });
+    } else if (req.cookies.refresh_token) {
+        const decodedRefresh = jwt.decode(req.cookies.refresh_token);
+        logger.info('Logging out user', { user: (decodedRefresh as any)?.user });
+    } else {
+        logger.info('Logging out user, could not decode tokens');
+    }
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    res.status(HttpStatusCode.Ok).json({ message: 'Session terminated' });
 });
 
 authRouter.post('/register', async (_req: Request, res: Response): Promise<void> => {
