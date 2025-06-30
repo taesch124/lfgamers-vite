@@ -3,6 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { JSX } from 'react';
 import { useLocation } from 'react-router';
 import ApplicationHeader from '@layouts/ApplicationHeader';
+import ApplicationNavbar from './ApplicationNavbar';
 
 function ApplicationShell({ children }: { children: JSX.Element }) {
   const location = useLocation();
@@ -29,7 +30,7 @@ function ApplicationShell({ children }: { children: JSX.Element }) {
         <AppShell.Navbar
           p='md'
         >
-          Navbar
+          <ApplicationNavbar />
         </AppShell.Navbar>
       )}
 

@@ -50,7 +50,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
             });
 
             return res.status(HttpStatusCode.Ok)
-                .json({ success: true });
+                .json({ success: true, user });
         }
 
         return res.status(HttpStatusCode.Unauthorized)
