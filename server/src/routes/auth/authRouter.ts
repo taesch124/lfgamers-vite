@@ -1,5 +1,6 @@
 import IgdbAPIError from '@app/errors/IgdbAPIError';
 import TwitchAPIError from '@app/errors/TwitchAPIError';
+import * as argon from 'argon2';
 import { HttpStatusCode } from 'axios';
 import { type Request, type Response, Router } from 'express';
 import jwt from 'jsonwebtoken';
@@ -28,7 +29,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
                 .json({ error: 'Invalid credentials' });
         }
 
-        if (user.password === password) {
+        if (await argon.verify(user.password, password)) {
             logger.info('passwords match', { password, userPassword: user.password });
 
             const accessToken = jwt.sign({ user }, secret, { expiresIn: ACCESS_TOKEN_LIFETIME_STRING });
@@ -55,7 +56,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
         return res.status(HttpStatusCode.Unauthorized)
             .json({ error: 'Invalid credentials' });
     } catch (err) {
-        logger.warn('Could not log in', { error: err });
+        logger.error('Could not log in', { error: err });
         return res.status(HttpStatusCode.Unauthorized)
             .json({ error: 'Invalid credentials' });
     }

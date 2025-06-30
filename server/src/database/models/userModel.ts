@@ -1,9 +1,11 @@
 import DatabaseError from '@errors/DatabaseError';
 import DatabaseHandler from '@database/database';
+import * as argon from 'argon2';
 import { QueryResult, QueryResultRow } from 'pg';
 import { UserDTO } from '@shared-types';
 import { Logger } from 'winston';
 import { v7 as uuid } from 'uuid';
+import CryptoError from '@app/errors/CryptoError';
 
 class UserModel {
     constructor (private logger: Logger) {
@@ -62,6 +64,14 @@ class UserModel {
     };
 
     public registerUser = async (user: UserDTO): Promise<void> => {
+        let hashedPassword;
+        try {
+            const password = user.password;
+            hashedPassword = await argon.hash(password);
+        } catch (error) {
+            throw new CryptoError('Could no hash user registration password');
+        }
+        
         const queryText: string = 'INSERT INTO users (uuid, username, email, password ) ' +
             'VALUES ($1, $2, $3, $4) ' +
             'ON CONFLICT (uuid) DO NOTHING';
@@ -69,7 +79,7 @@ class UserModel {
             uuid(),
             user.username,
             user.email,
-            user.password,
+            hashedPassword,
         ];
 
         const client = await DatabaseHandler.getInstance().pool.connect(),
