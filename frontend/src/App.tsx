@@ -17,6 +17,7 @@ function App() {
     const [ session, setSession ] = useAtom(sessionAtom);
     const { isPending } = useQuery<boolean>({
         queryKey: ['auth', 'check-token'],
+        retry: false,
         queryFn: async () => {
             const response = await appClient.get('/auth/check-token');
             if (response.status === HttpStatusCode.Ok) {
@@ -31,8 +32,9 @@ function App() {
     useEffect(() => {
         if (session.authenticated) {
             navigate('/games');
+            return;
         }
-    }, [session, navigate]);
+    }, [session.authenticated, navigate]);
 
     if (isPending) {
         return (

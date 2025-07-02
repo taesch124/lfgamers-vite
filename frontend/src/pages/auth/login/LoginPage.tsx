@@ -59,6 +59,7 @@ function LoginPage() {
             navigate('/games');
         } catch (error) {
             console.error(error);
+            setError('password', { message: 'Login failed' });
         }
     };
     return (

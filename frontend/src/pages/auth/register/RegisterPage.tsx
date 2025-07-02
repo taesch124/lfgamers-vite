@@ -14,13 +14,14 @@ import {
 } from '@mantine/core';
 import { useMutation } from '@tanstack/react-query';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { AxiosResponse } from 'axios';
 import appClient from '../../../api/apiClient';
 
 type RegisterInputs = UserRegisterReqDTO;
 
 function RegisterPage() {
+    const navigate = useNavigate();
     const {
         control,
         setError,
@@ -58,6 +59,8 @@ function RegisterPage() {
                 setError('password', { message: response.error ?? 'Register failed' });
                 return;
             }
+
+            navigate('/login');
         } catch (error) {
             console.error(error);
             setError('password', { message: 'Register failed' });

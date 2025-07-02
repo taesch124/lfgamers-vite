@@ -63,7 +63,7 @@ class UserModel {
         }
     };
 
-    public registerUser = async (user: UserDTO): Promise<void> => {
+    public registerUser = async (user: UserDTO): Promise<UserDTO> => {
         let hashedPassword;
         try {
             const password = user.password;
@@ -72,9 +72,10 @@ class UserModel {
             throw new CryptoError('Could no hash user registration password');
         }
         
-        const queryText: string = 'INSERT INTO users (uuid, username, email, password ) ' +
+        const queryText: string = 'INSERT INTO users ( uuid, username, email, password ) ' +
             'VALUES ($1, $2, $3, $4) ' +
-            'ON CONFLICT (uuid) DO NOTHING';
+            'ON CONFLICT (uuid) DO NOTHING ' +
+            'RETURNING uuid, username, email, password;';
         const queryValues: Array<string> = [
             uuid(),
             user.username,
@@ -82,14 +83,20 @@ class UserModel {
             hashedPassword,
         ];
 
-        const client = await DatabaseHandler.getInstance().pool.connect(),
-            dbResult: QueryResult<QueryResultRow> = await client.query(queryText, queryValues);
+        const client = await DatabaseHandler.getInstance().pool.connect();
+        const dbResult: QueryResult<QueryResultRow> = await client.query(queryText, queryValues);
         // Release the client back to the pool
         client.release();
 
         if (dbResult.rowCount === 0) {
             throw new DatabaseError(`User with ID ${user.uuid} already exists`, this.constructor.name);
         }
+
+        if (dbResult.rowCount === 1) {
+            return dbResult.rows[0] as UserDTO;
+        }
+        
+        throw new DatabaseError(`User ${user.username} could not be added`, this.constructor.name)
     };
 };
 

@@ -5,9 +5,9 @@ import { HttpStatusCode } from 'axios';
 import { type Request, type Response, Router } from 'express';
 import jwt from 'jsonwebtoken';
 import Logger from '@app/utils/logger';
-import { UserDTO, UserRegisterReqSchema } from '@shared-types';
+import { ErrorResDTO, UserDTO, UserLoginResDTO, UserRegisterReqSchema, UserRegisterResDTO } from '@shared-types';
 import UserModel from '@app/database/models/userModel';
-import zod from 'zod/v4';
+import zod, { success } from 'zod/v4';
 import config from '@app/config/config';
 import { ACCESS_TOKEN_LIFETIME, ACCESS_TOKEN_LIFETIME_STRING, REFRESH_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME_STRING } from '@app/utils/constants';
 import authMiddleware from '@app/middleware/authMiddleware';
@@ -19,7 +19,7 @@ const userModel = new UserModel(userModelLogger);
 
 const secret: string = config.server.jwtSecret ?? 'lfgamers';
 
-authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
+authRouter.post('/login', async (req: Request, res: Response<UserLoginResDTO | ErrorResDTO>): Promise<any> => {
     const { username, password } = req.body;
     logger.info('Logging in user', { password, username });
     try {
@@ -64,7 +64,10 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<any> => {
 
 // INFO: authmiddleware will check the tokens, so no need to, just send success back
 authRouter.get('/check-token', authMiddleware, (req: Request, res: Response) => {
-    res.status(HttpStatusCode.Ok).json({ message: 'Session authenticated' });
+    res.status(HttpStatusCode.Ok).json({
+        authenticated: true,
+        message: 'Session authenticated'
+    });
 });
 
 authRouter.post('/logout', (req: Request, res: Response): void => {
@@ -82,18 +85,22 @@ authRouter.post('/logout', (req: Request, res: Response): void => {
     res.status(HttpStatusCode.Ok).json({ message: 'Session terminated' });
 });
 
-authRouter.post('/register', async (_req: Request, res: Response): Promise<void> => {
+authRouter.post('/register', async (_req: Request, res: Response<UserRegisterResDTO | ErrorResDTO>): Promise<void> => {
     try {
         const user = UserRegisterReqSchema.parse(_req.body);
 
         logger.info('Registering user in IGDB', { user });
 
-        // Register the user in IGDB
-        await userModel.registerUser(user as UserDTO);
+        // Register the user in DB
+        const dbUser = await userModel.registerUser(user as UserDTO);
 
-        res.status(HttpStatusCode.Ok).json({ message: 'User registered successfully in IGDB.' });
+        res.status(HttpStatusCode.Ok)
+            .json({
+                success: true,
+                user: dbUser,
+            });
     } catch (error) {
-        logger.error('Error registering user in IGDB', { error });
+        logger.error('Error registering user in DB', { error });
         if (error instanceof Error) {
             res.status(HttpStatusCode.InternalServerError)
                 .json({ error: error.message });
@@ -108,7 +115,11 @@ authRouter.post('/register', async (_req: Request, res: Response): Promise<void>
             res.status(HttpStatusCode.BadRequest)
                 .json({ error: errorMessage });
         } else {
-            res.status(HttpStatusCode.InternalServerError).json({ error: 'An unexpected error occurred.' });
+            res.status(HttpStatusCode.InternalServerError)
+                .json({
+                    error: 'An unexpected error occurred.',
+                    success: false
+                });
         }
     }
 });
